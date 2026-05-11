@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Défi Enfance 2026 — Rétro-planning</title>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;600;700&family=Montserrat:wght@500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --magenta:#fb0089;--magenta-lt:#fff0f8;
+  --orange:#ef6135;--orange2:#ff8533;--orange-lt:#fff4ef;--orange-c:#ff9b57;
+  --white:#fff;--off:#fdf9f7;--light:#fef2eb;--border:#f0e0d8;
+  --text:#1a0a04;--muted:#7a5545;--light-text:#b08070;
+  --angers:#166534;--angers-lt:#dcfce7;
+  --tours:#1e40af;--tours-lt:#dbeafe;
+  --both-bg:#fff0f8;
+  --rouge:#dc2626;--rouge-lt:#fee2e2;
+  --jaune:#b45309;--jaune-lt:#fef3c7;
+  --vert:#15803d;--vert-lt:#dcfce7;
+  --gris:#6b7280;--gris-lt:#f3f4f6;
+}
+body{font-family:'Poppins',sans-serif;background:var(--off);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* HEADER */
+.hdr{background:linear-gradient(130deg,var(--orange) 0%,#fb0089 100%);position:sticky;top:0;z-index:200;box-shadow:0 4px 24px rgba(251,0,137,.3);}
+.hdr-inner{display:flex;align-items:center;gap:16px;padding:12px 24px;flex-wrap:wrap;}
+.hdr-logo{display:flex;align-items:center;gap:12px;}
+.hdr-icon{width:46px;height:46px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.hdr-title{color:#fff;}
+.hdr-title h1{font-family:'Antonio',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;line-height:1.1;}
+.hdr-title p{font-size:10px;font-weight:300;opacity:.8;margin-top:2px;}
+.hdr-chips{display:flex;gap:8px;margin-left:auto;}
+.chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 12px;color:#fff;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.4px;white-space:nowrap;}
+.btn-export{background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;padding:9px 14px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap;}
+.btn-export:hover{background:rgba(255,255,255,.22);}
+.btn-import{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;padding:9px 18px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap;backdrop-filter:blur(6px);}
+.btn-import:hover{background:rgba(255,255,255,.28);}
+.btn-new{background:#fff;color:var(--magenta);border:none;border-radius:8px;padding:9px 18px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 2px 10px rgba(0,0,0,.15);transition:all .2s;white-space:nowrap;}
+.btn-new:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.2);}
+
+/* MODAL IMPORT */
+.mo-import{display:none;position:fixed;inset:0;background:rgba(26,10,4,.65);backdrop-filter:blur(5px);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.mo-import.open{display:flex;}
+.mdl-import{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:660px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(239,97,53,.3);animation:up .22s ease;}
+.mdl-import-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mdl-import-ttl{font-family:'Antonio',sans-serif;font-size:19px;font-weight:700;color:var(--magenta);}
+.mdl-import-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5;}
+.import-source{display:flex;gap:10px;margin-bottom:12px;}
+.import-source input{flex:1;font-family:'Poppins',sans-serif;font-size:12px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;outline:none;color:var(--text);}
+.import-source input:focus{border-color:var(--magenta);}
+.import-textarea{width:100%;min-height:180px;font-family:'Poppins',sans-serif;font-size:12px;line-height:1.6;padding:12px;border:1.5px solid var(--border);border-radius:8px;resize:vertical;outline:none;color:var(--text);}
+.import-textarea:focus{border-color:var(--magenta);}
+.btn-analyze{width:100%;margin-top:12px;padding:12px;border:none;border-radius:8px;background:linear-gradient(130deg,var(--orange),var(--magenta));color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 3px 14px rgba(251,0,137,.25);}
+.btn-analyze:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(251,0,137,.4);}
+.btn-analyze:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.import-loading{display:none;text-align:center;padding:24px;color:var(--muted);}
+.import-loading.show{display:block;}
+.import-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--magenta);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.import-results{display:none;margin-top:16px;}
+.import-results.show{display:block;}
+.import-results-ttl{font-family:'Antonio',sans-serif;font-size:14px;font-weight:700;color:var(--vert);margin-bottom:10px;}
+.import-task-preview{background:var(--off);border:1.5px solid var(--border);border-radius:8px;padding:10px 13px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;}
+.import-task-chk{width:18px;height:18px;border-radius:4px;border:2px solid var(--magenta);flex-shrink:0;margin-top:1px;cursor:pointer;accent-color:var(--magenta);}
+.import-task-body{flex:1;}
+.import-task-d{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.import-task-meta{display:flex;gap:5px;flex-wrap:wrap;}
+.import-confirm{width:100%;margin-top:14px;padding:11px;border:none;border-radius:8px;background:var(--vert);color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.import-confirm:hover{opacity:.88;}
+.import-error{background:var(--rouge-lt);border:1.5px solid var(--rouge);border-radius:8px;padding:12px;color:var(--rouge);font-size:12px;margin-top:12px;display:none;}
+.import-error.show{display:block;}
+.import-apikey{margin-bottom:14px;}
+.import-apikey label{display:block;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.import-apikey input{width:100%;font-family:'Poppins',sans-serif;font-size:12px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;outline:none;color:var(--text);}
+.import-apikey input:focus{border-color:var(--magenta);}
+.apikey-hint{font-size:10px;color:var(--light-text);margin-top:4px;}
+
+/* COUNTDOWN */
+.cdb{background:linear-gradient(135deg,#fff4ef,#fff0f8);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;}
+.cd-item{display:flex;align-items:center;gap:8px;}
+.cd-lbl{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.cd-num{font-family:'Antonio',sans-serif;font-size:18px;font-weight:700;padding:3px 10px;border-radius:6px;line-height:1;}
+.cd-a{background:var(--angers-lt);color:var(--angers);}
+.cd-t{background:var(--tours-lt);color:var(--tours);}
+.cd-d{background:var(--rouge-lt);color:var(--rouge);}
+
+/* STATS */
+.stats{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.st{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:52px;}
+.st-n{font-family:'Antonio',sans-serif;font-size:24px;font-weight:700;line-height:1;}
+.st-l{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.st-sep{width:1px;height:30px;background:var(--border);}
+.c-m{color:var(--magenta)}.c-r{color:var(--rouge)}.c-o{color:var(--orange)}.c-j{color:var(--jaune)}.c-v{color:var(--vert)}.c-a{color:var(--angers)}.c-t{color:var(--tours)}
+
+/* TOOLBAR */
+.tb{padding:12px 24px;background:var(--off);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:70px;z-index:100;}
+.tb input[type=text],.tb select{font-family:'Poppins',sans-serif;font-size:12px;padding:7px 11px;border:1.5px solid var(--border);border-radius:7px;background:#fff;color:var(--text);outline:none;transition:border-color .2s;cursor:pointer;}
+.tb input[type=text]:focus,.tb select:focus{border-color:var(--magenta);}
+.tb input[type=text]{min-width:180px;}
+.fchip{padding:5px 13px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);transition:all .2s;}
+.fchip.on{background:var(--magenta);color:#fff;border-color:var(--magenta);}
+.tb-sep{width:1px;height:24px;background:var(--border);}
+.view-toggle{display:flex;gap:0;background:var(--off);border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-left:auto;}
+.vtbtn{padding:6px 14px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .15s;}
+.vtbtn.on{background:var(--magenta);color:#fff;}
+
+/* MAIN */
+.main{padding:20px 24px;max-width:1440px;margin:0 auto;}
+
+/* SECTION */
+.sec{margin-bottom:24px;}
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+.sec-ico{font-size:16px;}
+.sec-ttl{font-family:'Antonio',sans-serif;font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.sec-cnt{margin-left:auto;background:var(--light);color:var(--orange);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;}
+
+/* GRID */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;}
+
+/* CARD PLANNING */
+.tcard{background:#fff;border-radius:11px;border:1.5px solid var(--border);padding:13px 15px;display:flex;flex-direction:column;gap:9px;transition:all .18s;position:relative;overflow:hidden;}
+.tcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.tcard.dl-rouge::before{background:var(--rouge);}
+.tcard.dl-orange::before{background:var(--orange);}
+.tcard.dl-jaune::before{background:var(--jaune);}
+.tcard.dl-vert::before{background:var(--vert);}
+.tcard.dl-gris::before{background:var(--gris-lt);}
+.tcard.retard{border-color:var(--rouge);background:linear-gradient(135deg,#fff,#fff5f5);}
+.tcard.done{opacity:.55;}
+.tcard.done .ttitle{text-decoration:line-through;color:var(--muted);}
+.tcard:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(239,97,53,.13);border-color:var(--orange-c);}
+.ttop{display:flex;align-items:flex-start;gap:9px;}
+.tchk{width:19px;height:19px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;background:#fff;font-size:11px;font-weight:700;color:#fff;}
+.tchk.chk{background:var(--vert);border-color:var(--vert);}
+.ttitle{font-size:12px;font-weight:500;line-height:1.5;flex:1;}
+.tbadges{display:flex;gap:5px;flex-wrap:wrap;}
+.bdg{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.bdg-a{background:var(--angers-lt);color:var(--angers);}
+.bdg-t{background:var(--tours-lt);color:var(--tours);}
+.bdg-b{background:var(--both-bg);color:var(--magenta);}
+.bdg-retard{background:var(--rouge);color:#fff;}
+.bdg-aujourdhui{background:var(--rouge-lt);color:var(--rouge);}
+.bdg-demain{background:var(--orange-lt);color:var(--orange);}
+.bdg-bientot{background:var(--jaune-lt);color:var(--jaune);}
+.bdg-plus-tard{background:var(--gris-lt);color:var(--gris);}
+.bdg-fait{background:var(--vert-lt);color:var(--vert);}
+.bdg-critique{background:var(--rouge);color:#fff;}
+.bdg-encours{background:var(--orange-lt);color:var(--orange);}
+.bdg-bloque{background:var(--jaune-lt);color:var(--jaune);}
+.bdg-afaire{background:var(--gris-lt);color:var(--gris);}
+.bdg-p{background:var(--light);color:var(--orange);}
+.bdg-src{background:var(--off);color:var(--light-text);font-style:italic;}
+.tcmt{font-size:10px;color:var(--muted);font-style:italic;line-height:1.5;padding:6px 9px;background:var(--off);border-radius:5px;}
+.tact{display:flex;gap:5px;justify-content:flex-end;}
+.ibtn{width:26px;height:26px;border-radius:5px;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);transition:all .15s;}
+.ibtn:hover{background:var(--light);color:var(--orange);border-color:var(--orange-c);}
+.ibtn.del:hover{background:var(--rouge-lt);color:var(--rouge);border-color:var(--rouge);}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(26,10,4,.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.mo.open{display:flex;}
+.mdl{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(239,97,53,.25);animation:up .22s ease;}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.mdl-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid var(--light);}
+.mdl-ttl{font-family:'Antonio',sans-serif;font-size:17px;font-weight:700;color:var(--magenta);}
+.mdl-cls{width:30px;height:30px;border-radius:7px;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-size:15px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.mdl-cls:hover{background:var(--rouge-lt);color:var(--rouge);border-color:var(--rouge);}
+.ff{margin-bottom:13px;}
+.ff label{display:block;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.ff input,.ff select,.ff textarea{width:100%;font-family:'Poppins',sans-serif;font-size:12px;padding:9px 11px;border:1.5px solid var(--border);border-radius:7px;background:#fff;color:var(--text);outline:none;transition:border-color .2s;}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--magenta);}
+.ff textarea{resize:vertical;min-height:72px;line-height:1.5;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mdl-ftr{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:14px;border-top:1px solid var(--border);}
+.btn-c{padding:9px 18px;border-radius:7px;border:1.5px solid var(--border);background:transparent;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;}
+.btn-c:hover{background:var(--gris-lt);}
+.btn-s{padding:9px 22px;border-radius:7px;border:none;background:linear-gradient(130deg,var(--orange),var(--magenta));font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 3px 14px rgba(251,0,137,.3);transition:all .15s;}
+.btn-s:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(251,0,137,.4);}
+
+/* VUE AGENDA */
+.agenda-wrap{padding:20px 24px;max-width:1440px;margin:0 auto;}
+.agenda-cols{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+@media(max-width:1100px){.agenda-cols{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.agenda-cols{grid-template-columns:1fr;}}
+.agenda-col{display:flex;flex-direction:column;gap:8px;}
+.agenda-col-hdr{border-radius:10px;padding:12px 16px;margin-bottom:2px;display:flex;align-items:center;gap:10px;}
+.agenda-col-hdr.col-retard{background:linear-gradient(130deg,#7f1d1d,var(--rouge));}
+.agenda-col-hdr.col-today{background:linear-gradient(130deg,var(--rouge),#ff4040);}
+.agenda-col-hdr.col-demain{background:linear-gradient(130deg,var(--orange),var(--orange2));}
+.agenda-col-hdr.col-semaine{background:linear-gradient(130deg,#b45309,#d97706);}
+.agenda-col-hdr-ico{font-size:18px;}
+.agenda-col-hdr-info{color:#fff;flex:1;}
+.agenda-col-hdr-title{font-family:'Antonio',sans-serif;font-size:14px;font-weight:700;letter-spacing:.6px;}
+.agenda-col-hdr-sub{font-size:9px;opacity:.85;margin-top:1px;}
+.agenda-col-cnt{background:rgba(255,255,255,.25);color:#fff;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;}
+.acard{background:#fff;border-radius:10px;border:1.5px solid var(--border);padding:11px 13px;display:flex;flex-direction:column;gap:7px;transition:all .15s;position:relative;overflow:hidden;}
+.acard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.acard.ac-retard::before{background:#7f1d1d;}
+.acard.ac-crit::before{background:var(--rouge);}
+.acard.ac-enc::before{background:var(--orange);}
+.acard.ac-af::before{background:var(--jaune);}
+.acard.ac-blq::before{background:var(--gris);}
+.acard:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(239,97,53,.12);border-color:var(--orange-c);}
+.acard.retard-card{border-color:#991b1b;background:linear-gradient(135deg,#fff,#fff0f0);}
+.acard.crit-card{border-color:var(--rouge);background:linear-gradient(135deg,#fff,#fff5f5);}
+.acard-badges{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+.acard-title{font-size:11px;font-weight:500;line-height:1.5;}
+.acard-meta{display:flex;gap:4px;flex-wrap:wrap;}
+.acard-p{font-size:9px;color:var(--muted);padding:2px 7px;background:var(--light);border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:600;}
+.acard-act{display:flex;gap:4px;justify-content:flex-end;}
+.agenda-empty{text-align:center;padding:24px 14px;color:var(--light-text);font-size:11px;background:#fff;border-radius:10px;border:1.5px dashed var(--border);}
+
+.empty{text-align:center;padding:48px 20px;color:var(--light-text);font-size:13px;}
+.empty span{font-size:36px;display:block;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-logo">
+      <div class="hdr-icon">🤲</div>
+      <div class="hdr-title">
+        <h1>DÉFI ENFANCE 2026</h1>
+        <p>Générateur de victoires pour l'enfance · Rétro-planning opérationnel</p>
+      </div>
+    </div>
+    <div class="hdr-chips">
+      <div class="chip">🟢 ANGERS · 22 MAI</div>
+      <div class="chip">🔵 JOUÉ · 29 MAI</div>
+    </div>
+    <button class="btn-import" onclick="openImport()">🎙 Importer retranscription</button>
+    <button class="btn-export" onclick="exportTasks()" title="Sauvegarder mes tâches">💾 Sauvegarder</button>
+    <label class="btn-export" title="Charger une sauvegarde" style="cursor:pointer;">
+      📂 Charger
+      <input type="file" id="file-import" accept=".json" onchange="importTasks(event)" style="display:none;">
+    </label>
+    <button class="btn-new" onclick="openModal()">＋ Nouvelle tâche</button>
+  </div>
+</header>
+
+<div class="cdb">
+  <div class="cd-item"><span class="cd-lbl">Angers dans</span><span class="cd-num cd-a" id="cd-a">—</span></div>
+  <div class="cd-item"><span class="cd-lbl">Joué-lès-Tours dans</span><span class="cd-num cd-t" id="cd-t">—</span></div>
+  <div class="cd-item"><span class="cd-lbl">⚠️ Dossards → Henri dans</span><span class="cd-num cd-d" id="cd-d">—</span></div>
+  <div class="cd-item"><span class="cd-lbl">Logos MG/Marion dans</span><span class="cd-num cd-d" id="cd-l">—</span></div>
+</div>
+
+<div class="stats">
+  <div class="st"><span class="st-n c-m" id="s-tot">0</span><span class="st-l">Total</span></div>
+  <div class="st-sep"></div>
+  <div class="st"><span class="st-n" style="color:#7f1d1d" id="s-ret">0</span><span class="st-l">En retard</span></div>
+  <div class="st"><span class="st-n c-r" id="s-crit">0</span><span class="st-l">Critiques</span></div>
+  <div class="st"><span class="st-n c-o" id="s-enc">0</span><span class="st-l">En cours</span></div>
+  <div class="st"><span class="st-n c-j" id="s-af">0</span><span class="st-l">À faire</span></div>
+  <div class="st"><span class="st-n c-v" id="s-f">0</span><span class="st-l">Terminées</span></div>
+  <div class="st-sep"></div>
+  <div class="st"><span class="st-n c-a" id="s-ang">0</span><span class="st-l">Angers</span></div>
+  <div class="st"><span class="st-n c-t" id="s-tou">0</span><span class="st-l">Tours</span></div>
+</div>
+
+<div class="tb">
+  <input type="text" id="f-s" placeholder="🔍  Rechercher…" oninput="render()">
+  <div class="tb-sep"></div>
+  <select id="f-p" onchange="render()">
+    <option value="">Toutes les personnes</option>
+    <option>Philippine</option><option>Victor</option><option>Henri</option>
+    <option>Hyacinthe</option><option>Marion</option><option>Marie-Gabrielle</option>
+    <option>Baptiste</option><option>Guillaume</option><option>Alice</option>
+    <option>Christopher</option><option>Zakia</option><option>Thibaut</option>
+  </select>
+  <select id="f-v" onchange="render()">
+    <option value="">Toutes les villes</option>
+    <option value="ANGERS">Angers</option>
+    <option value="TOURS">Tours</option>
+    <option value="BOTH">Les deux</option>
+  </select>
+  <div class="tb-sep"></div>
+  <button class="fchip on" onclick="setF('all',this)">Tout</button>
+  <button class="fchip" onclick="setF('retard',this)">⚠️ En retard</button>
+  <button class="fchip" onclick="setF('critique',this)">🔴 Critique</button>
+  <button class="fchip" onclick="setF('encours',this)">🟠 En cours</button>
+  <button class="fchip" onclick="setF('afaire',this)">🟡 À faire</button>
+  <button class="fchip" onclick="setF('bloque',this)">⏸ Bloqué</button>
+  <button class="fchip" onclick="setF('fait',this)">✅ Terminé</button>
+  <div class="view-toggle">
+    <button class="vtbtn on" onclick="setView('planning',this)">📋 Planning</button>
+    <button class="vtbtn" onclick="setView('agenda',this)">📅 Agenda</button>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+<div class="agenda-wrap" id="agenda" style="display:none;"></div>
+
+<div class="mo-import" id="mo-import">
+  <div class="mdl-import">
+    <div class="mdl-import-hdr">
+      <div class="mdl-import-ttl">🎙 Importer une retranscription</div>
+      <button class="mdl-cls" onclick="closeImport()">✕</button>
+    </div>
+    <div class="mdl-import-sub">Collez le texte d'un appel ou compte-rendu. Claude analyse et extrait automatiquement les tâches à ajouter au planning.</div>
+
+    <div class="import-apikey">
+      <label>Clé API Anthropic</label>
+      <input type="password" id="imp-apikey" placeholder="sk-ant-..." oninput="saveApiKey(this.value)">
+      <div class="apikey-hint">Votre clé est sauvegardée localement dans votre navigateur. Obtenez-la sur console.anthropic.com</div>
+    </div>
+
+    <div class="import-source">
+      <input type="text" id="imp-source" placeholder="Nom de la source (ex : Appel 11 mai)">
+    </div>
+
+    <textarea class="import-textarea" id="imp-text" placeholder="Collez ici la retranscription de l'appel ou les notes du compte-rendu…"></textarea>
+
+    <button class="btn-analyze" id="btn-analyze" onclick="analyzeTranscription()">⚡ Analyser et extraire les tâches</button>
+
+    <div class="import-loading" id="imp-loading">
+      <div class="import-spinner"></div>
+      <div>Claude analyse la retranscription…</div>
+    </div>
+
+    <div class="import-error" id="imp-error"></div>
+
+    <div class="import-results" id="imp-results">
+      <div class="import-results-ttl" id="imp-results-ttl"></div>
+      <div id="imp-task-list"></div>
+      <button class="import-confirm" onclick="confirmImport()">✅ Ajouter les tâches sélectionnées au planning</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TACHE -->
+<div class="mo" id="mo">
+  <div class="mdl">
+    <div class="mdl-hdr">
+      <div class="mdl-ttl" id="mo-ttl">Nouvelle tâche</div>
+      <button class="mdl-cls" onclick="closeModal()">✕</button>
+    </div>
+    <div class="ff"><label>Description *</label><textarea id="m-d" placeholder="Décrivez la tâche…"></textarea></div>
+    <div class="fgrid">
+      <div class="ff"><label>Responsable</label>
+        <select id="m-p">
+          <option>Philippine</option><option>Victor</option><option>Henri</option>
+          <option>Hyacinthe</option><option>Marion</option><option>Marie-Gabrielle</option>
+          <option>Baptiste</option><option>Guillaume</option><option>Alice</option>
+          <option>Christopher</option><option>Zakia</option><option>Thibaut</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="ff"><label>Ville</label>
+        <select id="m-v">
+          <option value="ANGERS">Angers</option>
+          <option value="TOURS">Tours</option>
+          <option value="BOTH" selected>Les deux</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Date deadline</label>
+        <input type="date" id="m-dl" min="2026-05-07" max="2026-05-29">
+      </div>
+      <div class="ff"><label>Statut</label>
+        <select id="m-st">
+          <option value="afaire">🟡 À faire</option>
+          <option value="encours">🟠 En cours</option>
+          <option value="bloque">⏸ Bloqué</option>
+          <option value="critique">🔴 Critique / Bloquant</option>
+          <option value="fait">✅ Terminé</option>
+        </select>
+      </div>
+    </div>
+    <div class="fgrid">
+      <div class="ff"><label>Section</label>
+        <select id="m-sec">
+          <option value="0">🔴 Deadlines imminentes</option>
+          <option value="1">🟠 Cette semaine</option>
+          <option value="2">📦 Logistique</option>
+          <option value="3">🎨 Communication</option>
+          <option value="4">👥 Bénévoles</option>
+          <option value="5">💰 Partenaires / Finances</option>
+          <option value="6">✅ Terminé</option>
+        </select>
+      </div>
+      <div class="ff"><label>Source</label><input type="text" id="m-src" placeholder="ex : Appel 7 mai"></div>
+    </div>
+    <div class="ff"><label>Commentaire</label><input type="text" id="m-c" placeholder="Note ou contexte utile…"></div>
+    <div class="mdl-ftr">
+      <button class="btn-c" onclick="closeModal()">Annuler</button>
+      <button class="btn-s" onclick="saveTask()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY='defi2026_v3';
+let tasks=[],editId=null,activeF='all',activeView='planning';
+
+// TODAY à minuit pour comparaisons
+function today0(){const d=new Date();d.setHours(0,0,0,0);return d;}
+
+// Formate une date ISO en "7 mai", "8 mai", etc.
+function fmtDate(iso){
+  if(!iso)return null;
+  const [,m,d]=iso.split('-');
+  const mois=['','jan','fév','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+  return `${parseInt(d)} ${mois[parseInt(m)]}`;
+}
+
+// Calcule le delta en jours par rapport à aujourd'hui
+function deltaJours(iso){
+  if(!iso)return null;
+  const t=today0();
+  const dl=new Date(iso);dl.setHours(0,0,0,0);
+  return Math.ceil((dl-t)/864e5);
+}
+
+// Label dynamique de la deadline selon delta
+function dlLabel(iso,statut){
+  if(statut==='fait')return{text:'✅ Terminé',cls:'bdg-fait'};
+  if(!iso)return{text:'—',cls:'bdg-afaire'};
+  const d=deltaJours(iso);
+  if(d<0)return{text:`⚠️ En retard de ${Math.abs(d)} j`,cls:'bdg-retard'};
+  if(d===0)return{text:'Aujourd\'hui !',cls:'bdg-aujourdhui'};
+  if(d===1)return{text:'Demain',cls:'bdg-demain'};
+  if(d<=6)return{text:`Dans ${d} j · ${fmtDate(iso)}`,cls:'bdg-bientot'};
+  return{text:fmtDate(iso),cls:'bdg-plus-tard'};
+}
+
+// Classe de la barre latérale de la card
+function dlBarCls(iso,statut){
+  if(statut==='fait')return'dl-vert';
+  if(!iso)return'dl-gris';
+  const d=deltaJours(iso);
+  if(d<0)return'dl-rouge';
+  if(d<=1)return'dl-rouge';
+  if(d<=3)return'dl-orange';
+  if(d<=7)return'dl-jaune';
+  return'dl-gris';
+}
+
+function sLbl(s){return{fait:'✅ Terminé',critique:'🔴 Critique',encours:'🟠 En cours',bloque:'⏸ Bloqué',afaire:'🟡 À faire'}[s]||'À faire';}
+function sCls(s){return{fait:'bdg-fait',critique:'bdg-critique',encours:'bdg-encours',bloque:'bdg-bloque',afaire:'bdg-afaire'}[s]||'bdg-afaire';}
+function vLbl(v){return v==='ANGERS'?'Angers':v==='TOURS'?'Tours':'Angers + Tours';}
+function vCls(v){return v==='ANGERS'?'a':v==='TOURS'?'t':'b';}
+
+const SECS=[
+  {id:0,ico:'🔴',lbl:'DEADLINES IMMINENTES'},
+  {id:1,ico:'🟠',lbl:'CETTE SEMAINE'},
+  {id:2,ico:'📦',lbl:'LOGISTIQUE — COUREURS / MATÉRIEL'},
+  {id:3,ico:'🎨',lbl:'COMMUNICATION / SIGNALÉTIQUE'},
+  {id:4,ico:'👥',lbl:'BÉNÉVOLES — SITUATION CRITIQUE'},
+  {id:5,ico:'💰',lbl:'PARTENAIRES / RÉCOMPENSES / FINANCES'},
+  {id:6,ico:'✅',lbl:'TERMINÉ'},
+];
+
+// SEED avec dates ISO réelles
+const SEED=[
+  {id:1,d:"Envoyer données dossards à Henri (nom, prénom, n° course)",p:"Philippine",v:"BOTH",dl:"2026-05-13",s:"afaire",sec:0,src:"Brief agent",c:"DEADLINE ABSOLUE — bloque toute l'impression"},
+  {id:2,d:"Fournir logos partenaires à Hyacinthe",p:"Marie-Gabrielle",v:"BOTH",dl:"2026-05-08",s:"afaire",sec:0,src:"Brief agent",c:"Bloque oriflammes + commandes Hyacinthe"},
+  {id:3,d:"Fournir logos assos à Hyacinthe (stickers barnums)",p:"Marion",v:"BOTH",dl:"2026-05-08",s:"afaire",sec:0,src:"Brief agent",c:"Bloque stickers barnums"},
+  {id:4,d:"Rappeler Zakia — cordon livraison 22 mai",p:"Philippine",v:"ANGERS",dl:"2026-05-07",s:"encours",sec:0,src:"7 mai",c:"SMS laissé, en attente retour"},
+  {id:5,d:"Envoyer mail à Thibaut (drapeaux supporters) + Victor en CC",p:"Philippine",v:"BOTH",dl:"2026-05-07",s:"afaire",sec:0,src:"7 mai",c:""},
+  {id:6,d:"Renvoyer mail récap à Zoprodo (Eric Matthieu)",p:"Philippine",v:"BOTH",dl:"2026-05-07",s:"encours",sec:0,src:"7 mai",c:"Goodies + t-shirts bloqués ici. Relancer++"},
+  {id:7,d:"Envoyer nombre de participants à Agapé",p:"Philippine",v:"ANGERS",dl:"2026-05-08",s:"afaire",sec:0,src:"7 mai",c:""},
+  {id:8,d:"Appeler Jean-Paul (JP) pour qu'il presse le département du 49",p:"Philippine",v:"ANGERS",dl:"2026-05-07",s:"afaire",sec:0,src:"7 mai",c:"Barnums supplémentaires bloqués"},
+  {id:9,d:"Prévenir Henri du logement prévu pour l'équipe Coureurs à Tours",p:"Philippine",v:"TOURS",dl:"2026-05-07",s:"afaire",sec:0,src:"7 mai",c:""},
+  {id:10,d:"Réserver AirBnB 8 personnes Angers + 12 personnes Tours",p:"Philippine",v:"BOTH",dl:"2026-05-09",s:"afaire",sec:1,src:"7 mai",c:""},
+  {id:11,d:"Signer devis médailles + payer acompte",p:"Philippine",v:"BOTH",dl:"2026-05-08",s:"afaire",sec:1,src:"Brief agent",c:""},
+  {id:12,d:"Vérifier podiums calés (2 villes)",p:"Philippine / Henri",v:"BOTH",dl:"2026-05-09",s:"afaire",sec:1,src:"Brief agent",c:""},
+  {id:13,d:"Point mobilier : mange-debout, porte-cintres",p:"Philippine / Henri",v:"BOTH",dl:"2026-05-09",s:"afaire",sec:1,src:"Brief agent",c:""},
+  {id:14,d:"Répondre mail Catherine Gendron — plantes mairie",p:"Philippine",v:"ANGERS",dl:"2026-05-09",s:"afaire",sec:1,src:"Brief agent",c:"La mairie prête des plantes — confirmer"},
+  {id:15,d:"Rappeler SDIS 49 — nombre camions pompiers (4-5 vs 1-2 acté)",p:"Philippine",v:"ANGERS",dl:"2026-05-09",s:"afaire",sec:1,src:"Brief agent",c:""},
+  {id:16,d:"Relancer Catherine Gendron — permis voirie",p:"Philippine",v:"ANGERS",dl:"2026-05-09",s:"afaire",sec:1,src:"Brief agent",c:"Gabarits camions à envoyer"},
+  {id:17,d:"Point logements + restauration Joué-lès-Tours",p:"Philippine",v:"TOURS",dl:"2026-05-09",s:"afaire",sec:1,src:"Brief agent",c:"Goûter, déjeuner CRF, Mercure à confirmer"},
+  {id:18,d:"Mail Puy du Fou — places gratuites récompenses",p:"Philippine",v:"BOTH",dl:"2026-05-11",s:"afaire",sec:1,src:"Brief agent",c:"Récupérer script mail"},
+  {id:19,d:"Trouver remplaçant Croix-Rouge Tours (bobologie)",p:"Philippine",v:"TOURS",dl:"2026-05-09",s:"afaire",sec:1,src:"Appel 6 mai",c:"Contacter ordre de Malte, protection civile"},
+  {id:20,d:"Obtenir réponse département sur barnums supplémentaires (~10)",p:"Victor",v:"ANGERS",dl:"2026-05-09",s:"afaire",sec:1,src:"Appel 6 mai",c:"Philippine attend pour devis Henri"},
+  {id:21,d:"Contacter Catherine pour confirmer barnums + podium veille J",p:"Philippine",v:"ANGERS",dl:"2026-05-11",s:"afaire",sec:1,src:"Appel 6 mai",c:""},
+  {id:22,d:"Vérifier protection civile — tente nécessaire ?",p:"Philippine",v:"ANGERS",dl:"2026-05-11",s:"afaire",sec:1,src:"Appel 6 mai",c:""},
+  {id:23,d:"Faire les manipulations Linktree",p:"Philippine",v:"BOTH",dl:"2026-05-11",s:"afaire",sec:1,src:"7 mai",c:""},
+  {id:24,d:"Réunion Baptiste, Guillaume, Henri — dossards / bénévoles",p:"Philippine / Henri / Baptiste / Guillaume",v:"BOTH",dl:"2026-05-11",s:"afaire",sec:1,src:"Appel 6 mai",c:"Plan village, dossards, bénévoles · 10h30"},
+  {id:25,d:"Envoyer devis centralisés à Philippine (gardiennage, chrono, mobilier…)",p:"Henri",v:"BOTH",dl:"2026-05-09",s:"afaire",sec:2,src:"Appel 6 mai",c:"4-5 devis attendus"},
+  {id:26,d:"Appeler prestataire dossards — gestion prénom/numéro",p:"Henri",v:"BOTH",dl:"2026-05-13",s:"afaire",sec:2,src:"Appel 6 mai",c:"Transmettre consigne à Philippine"},
+  {id:27,d:"Commander gobelets jetables + bouteilles d'eau pour Tours",p:"Henri",v:"TOURS",dl:"2026-05-13",s:"afaire",sec:2,src:"Appel 6 mai",c:"Pas d'eau sur place"},
+  {id:28,d:"Demander à Henri bonbonnes d'eau en rab pour Angers",p:"Philippine",v:"ANGERS",dl:"2026-05-11",s:"afaire",sec:2,src:"7 mai",c:""},
+  {id:29,d:"Visiter Esperantia — inventaire matériel (oubli Henri)",p:"Henri",v:"BOTH",dl:"2026-05-09",s:"critique",sec:2,src:"Appel 6 mai",c:"À recaler rapidement"},
+  {id:30,d:"Remettre budget à jour (nouveau devis We Are Event)",p:"Henri",v:"BOTH",dl:null,s:"afaire",sec:2,src:"Brief agent",c:"Budget actuel 44k€ vs 65k€ prévu"},
+  {id:31,d:"Appeler DAG (Dylan) — design écrans + lien Victorien",p:"Henri",v:"BOTH",dl:"2026-05-13",s:"afaire",sec:2,src:"Brief agent",c:"Écrans classement sportif + collectes dons"},
+  {id:32,d:"Faire devis barnums supplémentaires dès réponse département",p:"Henri",v:"ANGERS",dl:null,s:"bloque",sec:2,src:"Appel 6 mai",c:"~10 barnums supplémentaires demandés"},
+  {id:33,d:"Confirmer stratégie gobelets avec Victor",p:"Philippine",v:"BOTH",dl:"2026-05-11",s:"afaire",sec:2,src:"Appel 6 mai",c:"Écocup Angers course / carton village / rien Tours"},
+  {id:34,d:"Plan pluie Tours — appeler fourrière parking nord",p:"Philippine",v:"TOURS",dl:"2026-05-15",s:"afaire",sec:2,src:"Brief agent",c:"Arrêté interdit stationnement jour J"},
+  {id:35,d:"Demander à Hyacinthe le logo Défi Enfance en blanc",p:"Philippine",v:"BOTH",dl:"2026-05-09",s:"afaire",sec:3,src:"7 mai",c:"Bloque sweats UFLF + gilets"},
+  {id:36,d:"Préparer visuel cadre photo Canva (trou au milieu) → Henri",p:"Philippine",v:"BOTH",dl:"2026-05-13",s:"afaire",sec:3,src:"Appel 6 mai",c:"Henri imprime et offre"},
+  {id:37,d:"Gilets équipes accueil/don → devis Zoprodo",p:"Philippine",v:"BOTH",dl:null,s:"bloque",sec:3,src:"Brief agent",c:"Attendre logo avant devis"},
+  {id:38,d:"Sweats UFLF → devis Zoprodo",p:"Philippine",v:"BOTH",dl:null,s:"bloque",sec:3,src:"Brief agent",c:"Attendre logo en blanc"},
+  {id:39,d:"Envoyer fichiers PLV / visuels",p:"Philippine",v:"BOTH",dl:"2026-05-13",s:"afaire",sec:3,src:"Appel 6 mai",c:""},
+  {id:40,d:"Oriflammes partenaires (dons ≥ 5 000€)",p:"Hyacinthe",v:"BOTH",dl:null,s:"bloque",sec:3,src:"Brief agent",c:"En attente logos MG"},
+  {id:41,d:"Stickers assos barnums",p:"Hyacinthe",v:"BOTH",dl:null,s:"bloque",sec:3,src:"Brief agent",c:"En attente logos Marion"},
+  {id:42,d:"Autorisation espace enfant UFLF — Christopher mairie Tours",p:"Christopher",v:"TOURS",dl:"2026-05-09",s:"bloque",sec:3,src:"Brief agent",c:"Mail attendu de Christopher"},
+  {id:43,d:"Recruter bénévoles Angers (12 inscrits / 32 nécessaires)",p:"Guillaume",v:"ANGERS",dl:"2026-05-15",s:"critique",sec:4,src:"Brief agent",c:"Manque 20 bénévoles — situation critique"},
+  {id:44,d:"Recruter bénévoles Joué-lès-Tours (7 inscrits / ~32 nécessaires)",p:"Baptiste",v:"TOURS",dl:"2026-05-15",s:"critique",sec:4,src:"Brief agent",c:"Situation encore plus critique"},
+  {id:45,d:"Brief bénévoles + webinaire + groupe WhatsApp Jour J",p:"Philippine / Guillaume / Baptiste",v:"BOTH",dl:null,s:"bloque",sec:4,src:"Brief agent",c:"Attendre responsables bénévolat"},
+  {id:46,d:"Organisation mise en enveloppes dossards (tri groupe / alphabétique)",p:"Baptiste / Guillaume",v:"BOTH",dl:"2026-05-21",s:"afaire",sec:4,src:"Appel 6 mai",c:"Veille de l'événement Angers"},
+  {id:47,d:"Appel Virgil (trésorier) — débloquer paiement Albéric",p:"Victor",v:"BOTH",dl:null,s:"afaire",sec:5,src:"Brief agent",c:""},
+  {id:48,d:"Places Futuroscope récompenses",p:"Victor / Philippine",v:"BOTH",dl:"2026-05-14",s:"afaire",sec:5,src:"Brief agent",c:""},
+  {id:49,d:"MG — passer Maison de Quernon (lots récompenses)",p:"Marie-Gabrielle",v:"ANGERS",dl:"2026-05-14",s:"afaire",sec:5,src:"Brief agent",c:""},
+  {id:50,d:"Point Victorien — jauge dons live + intégration DAG",p:"Victor",v:"BOTH",dl:"2026-05-13",s:"afaire",sec:5,src:"Brief agent",c:"Écrans cours : classement sportif + collectes"},
+  {id:51,d:"Envoyer émojis par type d'équipe à Henri / DAG",p:"Victor",v:"BOTH",dl:"2026-05-13",s:"afaire",sec:5,src:"Brief agent",c:""},
+  {id:52,d:"Visite site Angers",p:"Philippine / Henri / MG / Alice / Marion",v:"ANGERS",dl:"2026-05-05",s:"fait",sec:6,src:"Brief agent",c:"Catherine Gendron présente"},
+  {id:53,d:"Inventaire matériel 2025 chez Esperancia",p:"Henri",v:"BOTH",dl:"2026-05-05",s:"fait",sec:6,src:"Brief agent",c:"Fait après visite site"},
+  {id:54,d:"PDF signalétique PLV → impression Henri",p:"Hyacinthe / Philippine",v:"BOTH",dl:null,s:"fait",sec:6,src:"Brief agent",c:"Partis chez Henri"},
+  {id:55,d:"Fond de scène validé",p:"Victor",v:"BOTH",dl:null,s:"fait",sec:6,src:"Brief agent",c:""},
+  {id:56,d:"Devis drapeaux supporters signé + envoyé Ope FIVE",p:"Philippine",v:"BOTH",dl:null,s:"fait",sec:6,src:"Brief agent",c:""},
+];
+
+function load(){
+  try{const r=localStorage.getItem(KEY);tasks=r?JSON.parse(r):[...SEED];}
+  catch(e){tasks=[...SEED];}
+  updateCD();render();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(tasks));}catch(e){}}
+
+function updateCD(){
+  const t=today0();
+  const fmt=iso=>{const d=new Date(iso);d.setHours(0,0,0,0);const n=Math.ceil((d-t)/864e5);return n>0?n+' j':n===0?'Auj.':'Passé';};
+  document.getElementById('cd-a').textContent=fmt('2026-05-22');
+  document.getElementById('cd-t').textContent=fmt('2026-05-29');
+  document.getElementById('cd-d').textContent=fmt('2026-05-13');
+  document.getElementById('cd-l').textContent=fmt('2026-05-08');
+}
+
+function setF(f,el){activeF=f;document.querySelectorAll('.fchip').forEach(b=>b.classList.remove('on'));el.classList.add('on');render();}
+function setView(v,el){
+  activeView=v;
+  document.querySelectorAll('.vtbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  document.getElementById('main').style.display=v==='planning'?'':'none';
+  document.getElementById('agenda').style.display=v==='agenda'?'':'none';
+  v==='agenda'?renderAgenda():render();
+}
+
+function isRetard(t){return t.s!=='fait'&&t.dl&&deltaJours(t.dl)<0;}
+
+function getFiltered(){
+  const sr=document.getElementById('f-s').value.toLowerCase();
+  const pr=document.getElementById('f-p').value;
+  const vi=document.getElementById('f-v').value;
+  return tasks.filter(t=>{
+    if(sr&&!t.d.toLowerCase().includes(sr)&&!t.p.toLowerCase().includes(sr)&&!(t.c||'').toLowerCase().includes(sr))return false;
+    if(pr&&t.p!==pr)return false;
+    if(vi&&t.v!==vi)return false;
+    if(activeF==='retard'&&!isRetard(t))return false;
+    if(activeF==='critique'&&t.s!=='critique')return false;
+    if(activeF==='encours'&&t.s!=='encours')return false;
+    if(activeF==='afaire'&&t.s!=='afaire')return false;
+    if(activeF==='bloque'&&t.s!=='bloque')return false;
+    if(activeF==='fait'&&t.s!=='fait')return false;
+    return true;
+  });
+}
+
+function cardHTML(t){
+  const dl=dlLabel(t.dl,t.s);
+  const bar=dlBarCls(t.dl,t.s);
+  const isDone=t.s==='fait';
+  const ret=isRetard(t);
+  return `<div class="tcard ${bar}${isDone?' done':''}${ret?' retard':''}">
+    <div class="ttop">
+      <div class="tchk${isDone?' chk':''}" onclick="tog(${t.id})">${isDone?'✓':''}</div>
+      <div class="ttitle">${t.d}</div>
+    </div>
+    <div class="tbadges">
+      <span class="bdg ${dl.cls}">${dl.text}</span>
+      <span class="bdg bdg-${vCls(t.v)}">${vLbl(t.v)}</span>
+      <span class="bdg ${sCls(t.s)}">${sLbl(t.s)}</span>
+      <span class="bdg bdg-p">${t.p}</span>
+      ${t.src?`<span class="bdg bdg-src">${t.src}</span>`:''}
+    </div>
+    ${t.c?`<div class="tcmt">${t.c}</div>`:''}
+    <div class="tact">
+      <button class="ibtn" onclick="openModal(${t.id})">✏️</button>
+      <button class="ibtn del" onclick="del(${t.id})">🗑</button>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const ft=getFiltered();
+  updateStats();
+  const el=document.getElementById('main');
+  if(!ft.length){el.innerHTML='<div class="empty"><span>🔍</span>Aucune tâche correspondante.</div>';return;}
+  // Trier : retard d'abord, puis critique, puis par date
+  ft.sort((a,b)=>{
+    const ra=isRetard(a)?0:1,rb=isRetard(b)?0:1;
+    if(ra!==rb)return ra-rb;
+    const ca=a.s==='critique'?0:1,cb=b.s==='critique'?0:1;
+    if(ca!==cb)return ca-cb;
+    if(a.dl&&b.dl)return a.dl.localeCompare(b.dl);
+    if(a.dl)return -1;if(b.dl)return 1;
+    return 0;
+  });
+  let h='';
+  SECS.forEach(sec=>{
+    const st=ft.filter(t=>t.sec===sec.id);
+    if(!st.length)return;
+    h+=`<div class="sec"><div class="sec-hdr"><span class="sec-ico">${sec.ico}</span><span class="sec-ttl">${sec.lbl}</span><span class="sec-cnt">${st.length} tâche${st.length>1?'s':''}</span></div><div class="tgrid">${st.map(cardHTML).join('')}</div></div>`;
+  });
+  el.innerHTML=h;
+}
+
+function updateStats(){
+  document.getElementById('s-tot').textContent=tasks.length;
+  document.getElementById('s-ret').textContent=tasks.filter(isRetard).length;
+  document.getElementById('s-crit').textContent=tasks.filter(t=>t.s==='critique'&&!isRetard(t)).length;
+  document.getElementById('s-enc').textContent=tasks.filter(t=>t.s==='encours').length;
+  document.getElementById('s-af').textContent=tasks.filter(t=>['afaire','bloque'].includes(t.s)).length;
+  document.getElementById('s-f').textContent=tasks.filter(t=>t.s==='fait').length;
+  document.getElementById('s-ang').textContent=tasks.filter(t=>t.v==='ANGERS').length;
+  document.getElementById('s-tou').textContent=tasks.filter(t=>t.v==='TOURS').length;
+}
+
+function acardHTML(t){
+  const dl=dlLabel(t.dl,t.s);
+  const ret=isRetard(t);
+  const isCrit=t.s==='critique';
+  const acls=ret?'ac-retard':isCrit?'ac-crit':t.s==='encours'?'ac-enc':t.s==='bloque'?'ac-blq':'ac-af';
+  return `<div class="acard ${acls}${ret?' retard-card':isCrit?' crit-card':''}">
+    <div class="acard-badges">
+      ${ret?'<span class="bdg bdg-retard">⚠️ EN RETARD</span>':''}
+      ${!ret&&isCrit?'<span class="bdg bdg-critique">🔴 CRITIQUE</span>':''}
+      <span class="bdg ${dl.cls}">${dl.text}</span>
+    </div>
+    <div class="acard-title">${t.d}</div>
+    <div class="acard-meta">
+      <span class="acard-p">${t.p}</span>
+      <span class="bdg bdg-${vCls(t.v)}">${vLbl(t.v)}</span>
+    </div>
+    ${t.c?`<div class="tcmt" style="font-size:10px;">${t.c}</div>`:''}
+    <div class="acard-act">
+      <button class="ibtn" onclick="openModal(${t.id})">✏️</button>
+      <button class="ibtn" onclick="togA(${t.id})" title="Marquer terminé">✅</button>
+    </div>
+  </div>`;
+}
+
+function renderAgenda(){
+  updateStats();
+  const open=tasks.filter(t=>t.s!=='fait');
+  // Tri général : retard d'abord, critique ensuite, puis date
+  const sortFn=(a,b)=>{
+    const ra=isRetard(a)?0:1,rb=isRetard(b)?0:1;if(ra!==rb)return ra-rb;
+    const ca=a.s==='critique'?0:1,cb=b.s==='critique'?0:1;if(ca!==cb)return ca-cb;
+    if(a.dl&&b.dl)return a.dl.localeCompare(b.dl);
+    if(a.dl)return -1;if(b.dl)return 1;return 0;
+  };
+  const retard=open.filter(t=>isRetard(t)).sort(sortFn);
+  const auj=open.filter(t=>!isRetard(t)&&t.dl&&deltaJours(t.dl)===0||(t.s==='critique'&&!t.dl&&!isRetard(t))).sort(sortFn);
+  // Aujourd'hui = date du jour OU critique sans date
+  const todayItems=open.filter(t=>{
+    if(isRetard(t))return false;
+    if(t.dl&&deltaJours(t.dl)===0)return true;
+    if(t.s==='critique'&&!t.dl)return true;
+    return false;
+  }).sort(sortFn);
+  const demain=open.filter(t=>!isRetard(t)&&t.dl&&deltaJours(t.dl)===1).sort(sortFn);
+  const semaine=open.filter(t=>!isRetard(t)&&((!t.dl&&t.s!=='critique')||( t.dl&&deltaJours(t.dl)>=2&&deltaJours(t.dl)<=7))).sort(sortFn);
+
+  function col(items,cls,ico,title,sub){
+    return `<div class="agenda-col">
+      <div class="agenda-col-hdr ${cls}">
+        <span class="agenda-col-hdr-ico">${ico}</span>
+        <div class="agenda-col-hdr-info"><div class="agenda-col-hdr-title">${title}</div><div class="agenda-col-hdr-sub">${sub}</div></div>
+        <span class="agenda-col-cnt">${items.length}</span>
+      </div>
+      ${items.length?items.map(acardHTML).join(''):'<div class="agenda-empty">✓ Rien à faire</div>'}
+    </div>`;
+  }
+
+  const today=today0();
+  const jourStr=today.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  const demainDate=new Date(today);demainDate.setDate(demainDate.getDate()+1);
+  const demainStr=demainDate.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+
+  document.getElementById('agenda').innerHTML=`<div class="agenda-cols">
+    ${col(retard,'col-retard','⚠️','EN RETARD','Non fait · date dépassée')}
+    ${col(todayItems,'col-today','🔥','AUJOURD\'HUI',jourStr)}
+    ${col(demain,'col-demain','📌','DEMAIN',demainStr)}
+    ${col(semaine,'col-semaine','📅','CETTE SEMAINE','Les 7 prochains jours')}
+  </div>`;
+}
+
+function tog(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  if(t.s==='fait'){t.s=t._ps||'afaire';t.sec=t._sc!==undefined?t._sc:1;}
+  else{t._ps=t.s;t._sc=t.sec;t.s='fait';t.sec=6;}
+  save();activeView==='agenda'?renderAgenda():render();
+}
+function togA(id){tog(id);}
+function del(id){if(!confirm('Supprimer cette tâche ?'))return;tasks=tasks.filter(t=>t.id!==id);save();activeView==='agenda'?renderAgenda():render();}
+
+function openModal(id){
+  editId=id||null;
+  const t=id?tasks.find(x=>x.id===id):null;
+  document.getElementById('mo-ttl').textContent=id?'Modifier la tâche':'Nouvelle tâche';
+  document.getElementById('m-d').value=t?t.d:'';
+  document.getElementById('m-p').value=t?t.p:'Philippine';
+  document.getElementById('m-v').value=t?t.v:'BOTH';
+  document.getElementById('m-dl').value=t?t.dl||'':'';
+  document.getElementById('m-st').value=t?t.s:'afaire';
+  document.getElementById('m-sec').value=t?t.sec:0;
+  document.getElementById('m-src').value=t?t.src:'';
+  document.getElementById('m-c').value=t?t.c:'';
+  document.getElementById('mo').classList.add('open');
+  setTimeout(()=>document.getElementById('m-d').focus(),100);
+}
+function closeModal(){document.getElementById('mo').classList.remove('open');editId=null;}
+function saveTask(){
+  const d=document.getElementById('m-d').value.trim();
+  if(!d){document.getElementById('m-d').style.borderColor='var(--rouge)';return;}
+  document.getElementById('m-d').style.borderColor='';
+  const dl=document.getElementById('m-dl').value||null;
+  const data={d,p:document.getElementById('m-p').value,v:document.getElementById('m-v').value,dl,s:document.getElementById('m-st').value,sec:parseInt(document.getElementById('m-sec').value),src:document.getElementById('m-src').value,c:document.getElementById('m-c').value};
+  if(editId){const i=tasks.findIndex(t=>t.id===editId);tasks[i]={...tasks[i],...data};}
+  else tasks.push({id:Date.now(),...data});
+  closeModal();save();activeView==='agenda'?renderAgenda():render();
+}
+
+document.getElementById('mo').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('mo-import').addEventListener('click',function(e){if(e.target===this)closeImport();});
+
+// ── EXPORT / IMPORT SAUVEGARDE
+function exportTasks(){
+  const json=JSON.stringify(tasks,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`defi-enfance-sauvegarde-${date}.json`;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+  notif('💾 Sauvegarde téléchargée avec succès','var(--vert)');
+}
+
+function importTasks(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const imported=JSON.parse(ev.target.result);
+      if(!Array.isArray(imported))throw new Error();
+      if(!confirm(`Charger ${imported.length} tâches depuis la sauvegarde ?\n\nCela remplacera vos tâches actuelles.`))return;
+      tasks=imported;
+      save();
+      activeView==='agenda'?renderAgenda():render();
+      notif(`📂 ${imported.length} tâches chargées avec succès`,'var(--vert)');
+    }catch(err){
+      notif('❌ Fichier invalide — utilisez une sauvegarde générée par cet outil','var(--rouge)');
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+function notif(msg,bg){
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;bottom:24px;right:24px;background:${bg};color:#fff;padding:12px 20px;border-radius:10px;font-family:Montserrat,sans-serif;font-size:12px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);animation:up .3s ease;`;
+  el.textContent=msg;document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+const APIKEY_KEY='defi2026_apikey';
+function saveApiKey(v){if(v)localStorage.setItem(APIKEY_KEY,v);}
+function getApiKey(){return localStorage.getItem(APIKEY_KEY)||'';}
+
+// ── IMPORT MODAL
+let pendingTasks=[];
+function openImport(){
+  document.getElementById('imp-apikey').value=getApiKey();
+  document.getElementById('imp-source').value='';
+  document.getElementById('imp-text').value='';
+  document.getElementById('imp-loading').classList.remove('show');
+  document.getElementById('imp-results').classList.remove('show');
+  document.getElementById('imp-error').classList.remove('show');
+  document.getElementById('btn-analyze').disabled=false;
+  pendingTasks=[];
+  document.getElementById('mo-import').classList.add('open');
+  setTimeout(()=>document.getElementById('imp-text').focus(),100);
+}
+function closeImport(){document.getElementById('mo-import').classList.remove('open');}
+
+async function analyzeTranscription(){
+  const apiKey=document.getElementById('imp-apikey').value.trim();
+  const text=document.getElementById('imp-text').value.trim();
+  const source=document.getElementById('imp-source').value.trim()||'Retranscription';
+  if(!apiKey){showImportError('Veuillez saisir votre clé API Anthropic.');return;}
+  if(!text){showImportError('Veuillez coller une retranscription.');return;}
+  saveApiKey(apiKey);
+
+  document.getElementById('btn-analyze').disabled=true;
+  document.getElementById('imp-loading').classList.add('show');
+  document.getElementById('imp-results').classList.remove('show');
+  document.getElementById('imp-error').classList.remove('show');
+
+  const SYSTEM=`Tu es l'assistant de Philippine, coordinatrice du Défi Enfance 2026 (Union pour l'Enfance).
+Tu analyses des retranscriptions d'appels ou comptes-rendus et tu extrais les tâches à faire.
+
+CONTEXTE :
+- Événement Angers : 22 mai 2026
+- Événement Joué-lès-Tours : 29 mai 2026
+- Deadline dossards : 13 mai 2026 à 12h (absolue)
+- Deadline logos MG/Marion : 8 mai 2026
+
+PERSONNES CONNUES : Philippine, Victor, Henri, Hyacinthe, Marion, Marie-Gabrielle, Baptiste, Guillaume, Alice, Christopher, Zakia, Thibaut.
+
+SECTIONS DISPONIBLES (utilise l'id numérique) :
+0 = Deadlines imminentes
+1 = Cette semaine
+2 = Logistique
+3 = Communication / Signalétique
+4 = Bénévoles
+5 = Partenaires / Finances
+6 = Terminé
+
+STATUTS : afaire, encours, bloque, critique, fait
+
+Réponds UNIQUEMENT en JSON valide, sans aucun texte avant ou après, sans backticks.
+Format attendu :
+{"tasks":[{"d":"description claire de la tâche","p":"Responsable","v":"ANGERS|TOURS|BOTH","dl":"2026-05-XX ou null","s":"afaire|encours|bloque|critique|fait","sec":0,"c":"commentaire ou contexte utile"}]}
+
+Règles :
+- Extrais TOUTES les tâches actionnables mentionnées
+- Si une date est mentionnée convertis-la en format 2026-05-XX
+- Si pas de date précise mais "urgent" ou "aujourd'hui" utilise la date du jour ou proche
+- Si "cette semaine" utilise 2026-05-11
+- Si "semaine prochaine" utilise 2026-05-18
+- Déduis la ville selon le contexte (Angers, Tours, ou les deux)
+- Déduis le responsable selon le contexte
+- Mets sec=6 et s="fait" uniquement si la tâche est explicitement dite comme terminée`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        system:SYSTEM,
+        messages:[{role:'user',content:`Retranscription à analyser (source : ${source}) :\n\n${text}`}]
+      })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message||`Erreur API ${resp.status}`);
+    }
+
+    const data=await resp.json();
+    const raw=data.content.map(b=>b.text||'').join('').trim();
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    pendingTasks=(parsed.tasks||[]).map((t,i)=>({...t,_id:Date.now()+i,_src:source,_selected:true}));
+
+    document.getElementById('imp-loading').classList.remove('show');
+    showImportResults(pendingTasks,source);
+  }catch(e){
+    document.getElementById('imp-loading').classList.remove('show');
+    document.getElementById('btn-analyze').disabled=false;
+    showImportError('Erreur : '+e.message);
+  }
+}
+
+function showImportError(msg){
+  const el=document.getElementById('imp-error');
+  el.textContent=msg;el.classList.add('show');
+}
+
+function showImportResults(pts,source){
+  document.getElementById('imp-results-ttl').textContent=`${pts.length} tâche${pts.length>1?'s':''} extraite${pts.length>1?'s':''} — décochez celles à ignorer`;
+  const list=document.getElementById('imp-task-list');
+  list.innerHTML=pts.map((t,i)=>{
+    const dl=t.dl?fmtDate(t.dl):'Sans date';
+    const ville=t.v==='ANGERS'?'Angers':t.v==='TOURS'?'Tours':'Angers + Tours';
+    const secLbl=['🔴 Imminente','🟠 Cette semaine','📦 Logistique','🎨 Com','👥 Bénévoles','💰 Finances','✅ Terminé'][t.sec]||'?';
+    return `<div class="import-task-preview">
+      <input type="checkbox" class="import-task-chk" id="ichk${i}" checked onchange="pendingTasks[${i}]._selected=this.checked">
+      <div class="import-task-body">
+        <div class="import-task-d">${t.d}</div>
+        <div class="import-task-meta">
+          <span class="bdg bdg-p">${t.p||'?'}</span>
+          <span class="bdg bdg-${t.v==='ANGERS'?'a':t.v==='TOURS'?'t':'b'}">${ville}</span>
+          <span class="bdg bdg-bientot">${dl}</span>
+          <span class="bdg bdg-src">${secLbl}</span>
+          ${t.s==='critique'?'<span class="bdg bdg-critique">🔴 Critique</span>':''}
+          ${t.s==='fait'?'<span class="bdg bdg-fait">✅ Fait</span>':''}
+        </div>
+        ${t.c?`<div style="font-size:10px;color:var(--muted);margin-top:4px;font-style:italic;">${t.c}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('imp-results').classList.add('show');
+}
+
+function confirmImport(){
+  const toAdd=pendingTasks.filter(t=>t._selected);
+  if(!toAdd.length){closeImport();return;}
+  const src=document.getElementById('imp-source').value.trim()||'Retranscription';
+  toAdd.forEach(t=>{
+    tasks.push({id:Date.now()+Math.random(),d:t.d,p:t.p||'Philippine',v:t.v||'BOTH',dl:t.dl||null,s:t.s||'afaire',sec:t.sec||1,src:src,c:t.c||''});
+  });
+  save();closeImport();
+  activeView==='agenda'?renderAgenda():render();
+  notif(`✅ ${toAdd.length} tâche${toAdd.length>1?'s':''} ajoutée${toAdd.length>1?'s':''} au planning`,'var(--vert)');
+}
+
+load();
+</script>
+</body>
+</html>
